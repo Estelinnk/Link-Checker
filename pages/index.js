@@ -1,38 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const [url, setUrl] = useState('');
-  const [result, setResult] = useState(null);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const checkUrl = async () => {
-    const res = await fetch(`/api/check?url=${encodeURIComponent(url)}`);
+  const fetchStatuses = async () => {
+    const res = await fetch('/api/check');
     const data = await res.json();
-    setResult(data);
+    setServices(data.services);
+    setLoading(false);
   };
 
+  useEffect(() => {
+    fetchStatuses();
+    const interval = setInterval(fetchStatuses, 60000); // toutes les 60 sec
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <main className="p-8 font-sans">
-      <h1 className="text-2xl mb-4">🔗 Link Checker</h1>
-      <input
-        className="border p-2 w-80"
-        type="text"
-        placeholder="https://example.com"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-      />
-      <button
-        className="ml-2 bg-blue-600 text-white px-4 py-2 rounded"
-        onClick={checkUrl}
-      >
-        Vérifier
-      </button>
-      {result && (
-        <div className="mt-4">
-          {result.up ? (
-            <p>✅ Le site est accessible (code {result.status})</p>
-          ) : (
-            <p>❌ Le site est inaccessible</p>
-          )}
+    <main className="min-h-screen bg-gray-900 text-white p-8 font-sans">
+      <h1 className="text-3xl font-bold mb-4">📡 Link Checker Dashboard</h1>
+      {loading ? (
+        <p>Chargement des statuts...</p>
+      ) : (
+        <div className="grid gap-4">
+          {services.map((service, i) => (
+            <div key={i} className="bg-gray-800 p-4 rounded shadow">
+              <h2 className="text-xl font-semibold">{service.name}</h2>
+              <p className="text-sm text-gray-400 mb-2">{service.url}</p>
+              {service.up ? (
+                <span className="text-green-400 font-bold">✅ En ligne (code {service.status})</span>
+              ) : (
+                <span className="text-red-400 font-bold">❌ Hors ligne</span>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </main>
