@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Améliorations personnalisées */
+body {
+  @apply bg-[#0d0d14] text-white font-sans;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2f2f3a;
+  border-radius: 8px;
+}
